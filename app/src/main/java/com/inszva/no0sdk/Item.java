@@ -5,7 +5,7 @@ package com.inszva.no0sdk;
  */
 
 public class Item {
-    public int itemId;
+    public Long itemId;
     public String itemName;
     public String itemImage;
     public Double itemPrice;

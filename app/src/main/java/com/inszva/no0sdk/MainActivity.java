@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,16 +33,62 @@ public class MainActivity extends AppCompatActivity {
         session = Session.getInstance();
         session.login(1, new Session.LoginCallback() {
             @Override
-            public void callback(boolean success) {
+            public void callback(boolean success, String reason) {
                 ((TextView)findViewById(R.id.textView)).setText("login success");
+                session.getItemList(new Session.GetItemListCallback() {
+                    @Override
+                    public void callback(boolean success, String reason, List<Item> list) {
+                        ((TextView)findViewById(R.id.textView)).setText(list.get(0).itemName);
+                        try {
+                            session.setStop("1321411", new Session.SetStopCallback() {
+                                @Override
+                                public void callback(boolean success, String reason) {
+                                    ((TextView)findViewById(R.id.textView)).setText("setStop");
+                                    try {
+                                        session.setButton(new int[]{1,1,1,1,1,1}, new Session.SetButtonCallback() {
+                                            @Override
+                                            public void callback(boolean success, String reason) {
+                                                ((TextView)findViewById(R.id.textView)).setText("setButton");
+                                                List<ItemPair> list = new ArrayList<ItemPair>();
+                                                ItemPair itemPair = new ItemPair();
+                                                itemPair.itemNum = 1L;
+                                                itemPair.itemId = 1L;
+                                                list.add(itemPair);
+                                                try {
+                                                    session.createPayment(list, new Session.CreatePaymentCallback() {
+                                                        @Override
+                                                        public void callback(boolean success, String reason) {
+                                                            ((TextView)findViewById(R.id.textView)).setText("create");
+                                                            session.getRecentPayments(10, new Session.GetPaymentCallback() {
+                                                                @Override
+                                                                public void callback(boolean success, String reason, List<Payment> list) {
+                                                                    ((TextView)findViewById(R.id.textView)).setText(list.get(0).paymentNumber);
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+                                                } catch (Session.NullItemPairsException e) {
+                                                    e.printStackTrace();
+                                                } catch (Session.NotLoginException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        });
+                                    } catch (Session.ButtonArrayException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        } catch (Session.NotLoginException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
             }
         });
-        session.getItemList(new Session.GetItemListCallback() {
-            @Override
-            public void callback(List<Item> list) {
-                ((TextView)findViewById(R.id.textView)).setText(list.get(0).itemName);
-            }
-        });
+
     }
 
 }
