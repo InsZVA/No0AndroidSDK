@@ -19,7 +19,9 @@
             </intent-filter>
 
         </activity>
+        <service android:name="com.inszva.no0sdk.PullService"></service>
     </application>
+
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
